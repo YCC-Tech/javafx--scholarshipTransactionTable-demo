@@ -58,6 +58,9 @@ public class ScholarTransactionController implements Initializable{
     @FXML
     private Label lblAmount;
     
+    String year;
+    String month;
+    
     
     ScholarTransactionUtil scholarTransactionUtil = new ScholarTransactionUtil();
 
@@ -73,10 +76,10 @@ public class ScholarTransactionController implements Initializable{
 
 		for (ScholarTransaction scholarTransaction : scholarTransactionTable.getItems()) {
 			if (scholarTransaction.getWithdrawStatus().isSelected()) {
-				// update Date
-				scholarTransactionUtil.updateScholarTransactionDate(scholarTransaction);
+				//insert scholar transaction to transaction tb
+				scholarTransactionUtil.insertScholarTransactionDate(scholarTransaction,year, month);
 				// update text field
-				scholarTransactionUtil.updateScholarTransactionDescription(scholarTransaction);
+			//	scholarTransactionUtil.insertScholarTransactionDescription(scholarTransaction,year,month);
 				//update 
 				
 				
@@ -94,7 +97,12 @@ public class ScholarTransactionController implements Initializable{
     
     
     
-    private void showScholarTransactions(String sql) {
+  //  private void showScholarTransactions(String sql) {
+    
+    
+    //--change sql to parameter
+        private void showScholarTransactions(Integer universityId, String year, String month) {
+
     	
     	studentId.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, Integer>("studentId"));
     	
@@ -109,7 +117,7 @@ public class ScholarTransactionController implements Initializable{
 		
 			
 			try {
-				scholarTransactionTable.setItems(scholarTransactionUtil.getScholarTransactionList(sql));
+				scholarTransactionTable.setItems(scholarTransactionUtil.getScholarTransactionList(universityId,year,month));
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -117,17 +125,47 @@ public class ScholarTransactionController implements Initializable{
 		
 
     }
+        
+       //new add no1 
+		private void showScholarTransactions(Integer universityId, String year, String month,Integer attendanceYearId) {
+
+        	
+        	studentId.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, Integer>("studentId"));
+        	
+        	name.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, String>("name"));
+        	
+        	nrc.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, String>("nrc"));
+        	
+        	remark.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, TextField>("remark"));
+        	
+        	withdrawStatus.setCellValueFactory(new PropertyValueFactory<ScholarTransaction, CheckBox>("withdrawStatus"));
+    		
+    		
+    			
+    			try {
+    				scholarTransactionTable.setItems(scholarTransactionUtil.getScholarTransactionList(universityId, year, month, attendanceYearId));
+    			} catch (SQLException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    		
+
+        }
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
 		//please change university Id carried from previous page
 		int universityId = 1;
+		 year = "2015";
+		 month = "March";
 		
 		//show data before chosing academic year;
 		//showScholarTransactions("select * from enrollments where university_id='"+universityId+"' and is_active='1'; ");
 		
-		
-		showScholarTransactions("select s.student_id, s.name, s.nrc ,e.university_id FROM students s,enrollments e where e.university_id='"+universityId+"' and e.is_active='1' and s.student_id= e.student_id;");
+		//carry year and date parameter
+		//showScholarTransactions("select s.student_id, s.name, s.nrc ,e.university_id FROM students s,enrollments e where e.university_id='"+universityId+"' and e.is_active='1' and s.student_id= e.student_id;");
+	
+		showScholarTransactions(universityId, year, month);
 
 		//showScholarTransactions("SELECT * FROM students;");
 		
@@ -172,8 +210,13 @@ public class ScholarTransactionController implements Initializable{
 					
 					
 					//show data after  choosing academic year;
-					showScholarTransactions("select s.student_id, s.name, s.nrc ,e.university_id FROM students s,enrollments e where e.university_id='"+universityId+"' and e.is_active='1' and attendance_year_id='"+academicYearId+"' and s.student_id= e.student_id; ");
 					
+//--change query to parameter
+					
+					//	showScholarTransactions("select s.student_id, s.name, s.nrc ,e.university_id FROM students s,enrollments e where e.university_id='"+universityId+"' and e.is_active='1' and attendance_year_id='"+academicYearId+"' and s.student_id= e.student_id; ");
+					
+					
+					showScholarTransactions(universityId, year, month, academicYearId);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

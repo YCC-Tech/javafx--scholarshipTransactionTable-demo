@@ -17,8 +17,8 @@ public class ScholarTransaction {
 	public ScholarTransaction(int studentId, String name, String nrc, TextField remark, CheckBox withdrawStatus) {
 		super();
 		this.studentId 	=new SimpleIntegerProperty(studentId);
-		this.name	= new SimpleStringProperty(name);;
-		this.nrc 	= new SimpleStringProperty(nrc);;
+		this.name	= new SimpleStringProperty(name);
+		this.nrc 	= new SimpleStringProperty(nrc);
 		this.remark = remark;
 		this.withdrawStatus = withdrawStatus;
 	}
