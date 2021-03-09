@@ -166,7 +166,7 @@ public class ScholarTransactionUtil {
 		
 		//loop
 		rs = stmt.executeQuery(
-				"select  ss.student_id,ss.name from students ss where ss.student_id not in( select s.student_id FROM students s,enrollments e, transactions t  where e.university_id='1' and e.is_active='1' and taken_out_at  like'2015-03-%'  and s.student_id= e.student_id and s.student_id= t.student_id);");
+				"select  ss.student_id,ss.name from students ss where ss.student_id not in( select s.student_id FROM students s,enrollments e, transactions t  where e.university_id='"+universtiyId+"' and e.is_active='1' and taken_out_at  like'"+year+"-"+getMonthNumber(month)+"-%'  and s.student_id= e.student_id and s.student_id= t.student_id);");
 		
 		while(rs.next()) {
 			arraylist.add(rs.getInt("student_id"));
@@ -208,29 +208,46 @@ public class ScholarTransactionUtil {
 	//newly added no-3
 	public ObservableList<ScholarTransaction> getScholarTransactionList(Integer universtiyId,String year, String month,Integer attendanceYearId) throws SQLException {
 
-		// passed as parameter how???//it may be two same methods in Utils
-
 		ObservableList<ScholarTransaction> scholarTransactionList = FXCollections.observableArrayList();
 		connection = DBConnection.getConnection();
 		stmt = connection.createStatement();
-		rs = stmt.executeQuery(
-				"select s.student_id, s.name, s.nrc ,e.university_id,t.taken_out_at FROM students s,enrollments e, transactions t where e.university_id='"
-						+ universtiyId + "' and e.is_active='1' and taken_out_at  not like'"
-						+year+"-"+getMonthNumber(month)
-						+ "-%' and s.student_id= e.student_id and s.student_id= t.student_id and attendance_year_id='"+attendanceYearId+"';");
-
-			while (rs.next()) {
-			//System.out.println(rs.getInt("student_id"));
-				
-			scholarTransactionList.add(
-					new ScholarTransaction(
-					rs.getInt("student_id"), 
-					rs.getString("name"),
-					rs.getString("nrc"), new TextField(), new CheckBox()
-					));
+		ArrayList<Integer> arraylist = new ArrayList<Integer>();
+		ArrayList<Integer> idList = new ArrayList<Integer>();
 		
-
+		
+		//step-1 get
+		rs = stmt.executeQuery(
+				"select  ss.student_id,ss.name from students ss where ss.student_id not in( select s.student_id FROM students s,enrollments e, transactions t  where e.university_id='"+universtiyId+"' and e.is_active='1' and taken_out_at  like'"+year+"-"+getMonthNumber(month)+"-%'  and s.student_id= e.student_id and s.student_id= t.student_id );");
+		
+		while(rs.next()) {
+			arraylist.add(rs.getInt("student_id"));
 		}
+		
+		
+		for(int i =0;i<arraylist.size();i++) {
+			rs =stmt.executeQuery("SELECT student_id FROM enrollments where university_id='"+universtiyId+"' and student_id='"+arraylist.get(i)+"' and attendance_year_id='"+attendanceYearId+"';");
+			if(rs.next()) {
+				idList.add(rs.getInt("student_id"));
+			}
+		}
+		
+		
+		for(int i=0;i<idList.size();i++) {
+			rs= stmt.executeQuery("SELECT * FROM students where student_id='"+idList.get(i)+"';");
+			if(rs.next()) {
+				scholarTransactionList.add(
+						new ScholarTransaction(
+								rs.getInt("student_id"),
+								rs.getString("name"),
+								rs.getString("nrc"),
+								new TextField(),
+								new CheckBox()
+								));
+			}
+		}
+		
+		System.out.println(arraylist);
+		System.out.println(idList);
 
 		System.out.println(scholarTransactionList);
 		return scholarTransactionList;
